@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { getGameDetails } from '../services/api';
-import { Star, Globe, Monitor, Heart, Clock, Calendar, Loader2 } from 'lucide-react';
+import { Star, Globe, Monitor, Heart, Clock, Calendar, Loader2, Tag, Building2 } from 'lucide-react';
 
 const GameDetailPage = () => {
     const { id } = useParams();
@@ -72,9 +72,9 @@ const GameDetailPage = () => {
                         <div className="mb-2 grow">
                             <div className="flex flex-wrap gap-2 mb-4">
                                 {game.genres?.map(g => (
-                                    <span key={g.id} className="bg-teal-500/20 text-teal-300 border border-teal-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                                    <Link key={g.id} to={`/genre/${g.id}/${g.slug}`} className="bg-teal-500/20 text-teal-300 border border-teal-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-teal-500/30 transition">
                                         {g.name}
-                                    </span>
+                                    </Link>
                                 ))}
                             </div>
                             <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight drop-shadow-xl">{game.name}</h1>
@@ -141,6 +141,17 @@ const GameDetailPage = () => {
                             </div>
 
                             <div>
+                                <span className="text-slate-500 text-sm font-bold uppercase tracking-wider block mb-2">Publishers</span>
+                                <div className="flex flex-col gap-2">
+                                    {game.publishers?.map(p => (
+                                        <Link key={p.id} to={`/publisher/${p.id}`} className="text-sm text-teal-400 hover:text-teal-300 transition flex items-center gap-2">
+                                            <Building2 size={14} /> {p.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
                                 <span className="text-slate-500 text-sm font-bold uppercase tracking-wider block mb-2">Metascore</span>
                                 {game.metacritic ? (
                                     <span className={`inline-block px-3 py-1 rounded font-bold text-sm ${game.metacritic >= 75 ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
@@ -150,6 +161,17 @@ const GameDetailPage = () => {
                                         {game.metacritic}
                                     </span>
                                 ) : <span className="text-slate-600 italic">No disponible</span>}
+                            </div>
+
+                            <div>
+                                <span className="text-slate-500 text-sm font-bold uppercase tracking-wider block mb-2">Tags</span>
+                                <div className="flex flex-wrap gap-2">
+                                    {game.tags?.map(t => (
+                                        <Link key={t.id} to={`/tag/${t.id}/${t.slug}`} className="text-xs bg-slate-900 text-slate-400 px-2 py-1 rounded border border-slate-800 hover:border-teal-500/30 hover:text-teal-400 transition flex items-center gap-1">
+                                            <Tag size={10} /> {t.name}
+                                        </Link>
+                                    ))}
+                                </div>
                             </div>
 
                             {game.website && (

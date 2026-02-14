@@ -17,6 +17,9 @@ const Header = () => {
                         <li>
                             <Link to="/games" className="text-slate-200 hover:text-teal-400 transition font-medium">Explorar</Link>
                         </li>
+                        <li>
+                            <Link to="/publishers" className="text-slate-200 hover:text-teal-400 transition font-medium">Publishers</Link>
+                        </li>
                     </ul>
                 </nav>
             </div>

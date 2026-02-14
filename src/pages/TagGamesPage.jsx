@@ -1,30 +1,35 @@
 import React, { useEffect, useState } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import GameCard from '../components/GameCard';
-import SearchBar from '../components/SearchBar';
 import Pagination from '../components/Pagination';
-import { searchGames, getAllGames } from '../services/api';
+import { getGamesByTag, getGamesByGenre } from '../services/api';
+import { Loader2, Tag, Gamepad2 } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
 
-const GamesPage = () => {
+const TagGamesPage = () => {
+    const { id, slug } = useParams();
+    const location = useLocation();
     const [games, setGames] = useState([]);
     const [loading, setLoading] = useState(true);
     const [totalGames, setTotalGames] = useState(0);
     const [searchParams] = useSearchParams();
-    const query = searchParams.get('search');
     const page = parseInt(searchParams.get('page') || '1', 10);
 
+    const isGenre = location.pathname.includes('/genre/');
+    const typeLabel = isGenre ? 'Género' : 'Tag';
+    const Icon = isGenre ? Gamepad2 : Tag;
+
     useEffect(() => {
-        const fetchGames = async () => {
+        const fetchData = async () => {
             setLoading(true);
             try {
                 let data;
-                if (query) {
-                    data = await searchGames(query, page);
+                if (isGenre) {
+                    data = await getGamesByGenre(id, page);
                 } else {
-                    data = await getAllGames(page);
+                    data = await getGamesByTag(id, page);
                 }
 
                 if (data && data.results) {
@@ -35,28 +40,30 @@ const GamesPage = () => {
                     setTotalGames(0);
                 }
             } catch (error) {
-                console.error("Error fetching games", error);
+                console.error("Error fetching filtered games", error);
                 setGames([]);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchGames();
-    }, [query, page]);
+        fetchData();
+        window.scrollTo(0, 0);
+    }, [id, page, isGenre]);
 
     return (
         <div className="min-h-screen flex flex-col bg-slate-900 text-white font-sans">
             <Header />
 
             <main className="grow container mx-auto px-4 py-8">
-                <div className="mb-12 flex flex-col items-center text-center space-y-6">
-                    <h1 className="text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-linear-to-r from-white to-slate-500">
-                        {query ? `Resultados para "${query}"` : 'Explorador de Videojuegos'}
-                    </h1>
-                    <div className="w-full max-w-2xl transform hover:scale-[1.01] transition duration-300">
-                        <SearchBar initialQuery={query || ''} />
+                <div className="mb-12 flex flex-col items-center text-center space-y-4">
+                    <div className="flex items-center gap-2 text-teal-500 font-bold uppercase tracking-wider text-sm">
+                        <Icon size={18} />
+                        {typeLabel}
                     </div>
+                    <h1 className="text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-linear-to-r from-white to-slate-500">
+                        {slug?.replace(/-/g, ' ')}
+                    </h1>
                 </div>
 
                 {loading ? (
@@ -76,7 +83,7 @@ const GamesPage = () => {
                 ) : (
                     <div className="text-center py-20 bg-slate-800/50 rounded-3xl border border-slate-700">
                         <p className="text-2xl text-slate-300 font-bold mb-2">No se encontraron juegos</p>
-                        <p className="text-slate-500">Intenta con otra búsqueda o revisa tu conexión.</p>
+                        <p className="text-slate-500">Intenta buscar otra categoría.</p>
                     </div>
                 )}
             </main>
@@ -85,4 +92,4 @@ const GamesPage = () => {
         </div>
     );
 };
-export default GamesPage;
+export default TagGamesPage;
